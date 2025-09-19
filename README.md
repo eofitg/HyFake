@@ -9,6 +9,7 @@ I threw this together real quick to troll my friends with a fake screenshot ;)
 - Chat
 - Name Tag
 - Experiment Bar
+- Scoreboard
 
 ## Commands
 
