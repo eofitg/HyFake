@@ -37,7 +37,13 @@ minecraft {
     replace "@ID@", projectId
 }
 
-dependencies {
+dependencies {}
+
+jar {
+    manifest.attributes(
+            "FMLCorePlugin": 'net.eofitg.hyfake.asm.ASMLoadingPlugin',
+            "FMLCorePluginContainsFMLMod": true
+    )
 }
 
 processResources {

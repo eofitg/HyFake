@@ -1,4 +1,4 @@
-package net.eofitg.hyfake.listener;
+package net.eofitg.hyfake.gui;
 
 import net.eofitg.hyfake.HyFake;
 import net.eofitg.hyfake.util.BedwarsUtil;
@@ -12,48 +12,35 @@ import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GameOverlayAllListener {
+@SuppressWarnings("unused")  // class was called via asm
+public class FakeScoreboard extends Gui {
 
+    public static FakeScoreboard INSTANCE;
     private final Minecraft mc = Minecraft.getMinecraft();
 
-    @SubscribeEvent
-    public void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
-        if (!HyFake.config.isEnabled()) return;
-        if (event.type != RenderGameOverlayEvent.ElementType.ALL) {
-            return;
-        }
-        if (mc.theWorld == null || PlayerUtil.getThePlayer() == null) return;
-
-        Scoreboard scoreboard = mc.theWorld.getScoreboard();
-        ScoreObjective objective = scoreboard.getObjectiveInDisplaySlot(1);
-        if (objective == null) return;
-
-        if (HyFake.config.isBedwarsEnabled() && BedwarsUtil.inBedwars()) {
-            final int orgStar = HyFake.config.getBedwarsOriginalLevel();
-            final int tgtStar = HyFake.config.getBedwarsTargetLevel();
-
-            if (orgStar == -1 || tgtStar == -1) {
-                PlayerUtil.addMessage(EnumChatFormatting.RED + "Some parameters are missing.");
-                return;
-            }
-
-            final String orgColoredStarText = BedwarsUtil.getColoredBedwarsStar(orgStar);
-            final String tgtColoredStarText = BedwarsUtil.getColoredBedwarsStar(tgtStar);
-
-            renderSidebarWithReplace(event.resolution, objective, orgColoredStarText, tgtColoredStarText);
-        }
+    public FakeScoreboard() {
+        INSTANCE = this;
     }
 
+    public void render(ScoreObjective objective, ScaledResolution res) {
+        final int orgStar = HyFake.config.getBedwarsOriginalLevel();
+        final int tgtStar = HyFake.config.getBedwarsTargetLevel();
+        boolean flag = HyFake.config.isEnabled() && HyFake.config.isBedwarsEnabled() && BedwarsUtil.inBedwars();
 
-    private void renderSidebarWithReplace(ScaledResolution res, ScoreObjective objective, String original, String replace) {
+        if (orgStar == -1 || tgtStar == -1) {
+            PlayerUtil.addMessage(EnumChatFormatting.RED + "Some parameters are missing.");
+            flag = false;
+        }
+
+        final String orgColoredStarText = BedwarsUtil.getColoredBedwarsStar(orgStar);
+        final String tgtColoredStarText = BedwarsUtil.getColoredBedwarsStar(tgtStar);
+
         Scoreboard scoreboard = objective.getScoreboard();
         Collection<Score> scores = scoreboard.getSortedScores(objective);
 
@@ -72,7 +59,10 @@ public class GameOverlayAllListener {
             ScorePlayerTeam team = scoreboard.getPlayersTeam(score.getPlayerName());
             String name = ScorePlayerTeam.formatPlayerName(team, score.getPlayerName());
 
-            name = name.replace(original, replace);
+            if (flag && name.contains(orgColoredStarText)) {
+                name = name.replace(orgColoredStarText, tgtColoredStarText);
+            }
+
             String scoreStr = Integer.toString(score.getScorePoints());
             maxWidth = Math.max(maxWidth, fr.getStringWidth(name) + fr.getStringWidth(" " + scoreStr));
 
@@ -86,19 +76,19 @@ public class GameOverlayAllListener {
         int left = xRight - maxWidth;
         for (int i = 0; i < list.size(); i++) {
             int y = startY - (i + 1) * fr.FONT_HEIGHT;
-            Gui.drawRect(left - 2, y, xRight, y + fr.FONT_HEIGHT, 0x80000000);
+            Gui.drawRect(left - 2, y, xRight, y + fr.FONT_HEIGHT, 0x50000000);
             String name = names.get(i);
-            String scoreStr = scoreStrs.get(i);
+            String scoreStr = EnumChatFormatting.RED + scoreStrs.get(i);
 
-            fr.drawString(name, left, y, 0xFFFFFF);
-            fr.drawString(scoreStr, xRight - fr.getStringWidth(scoreStr), y, 0xFF555555);
+            fr.drawString(name, left, y, 0x20FFFFFF);
+            fr.drawString(scoreStr, xRight - fr.getStringWidth(scoreStr), y, 0x20FFFFFF);
         }
 
         int titleY = startY - totalHeight - fr.FONT_HEIGHT;
-        Gui.drawRect(left - 2, titleY, xRight, titleY + fr.FONT_HEIGHT, 0x80000000);
+        Gui.drawRect(left - 2, titleY, xRight, titleY + fr.FONT_HEIGHT, 0x60000000);
         String title = objective.getDisplayName();
         int titleX = left + (maxWidth - fr.getStringWidth(title)) / 2;
-        fr.drawString(title, titleX, titleY, 0xFFFFFF);
+        fr.drawString(title, titleX, titleY, 0x20FFFFFF);
     }
 
 }

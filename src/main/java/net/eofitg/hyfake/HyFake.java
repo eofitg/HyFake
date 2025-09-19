@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder;
 import net.eofitg.hyfake.command.BedwarsCommand;
 import net.eofitg.hyfake.command.HyFakeCommand;
 import net.eofitg.hyfake.config.HyFakeConfig;
+import net.eofitg.hyfake.gui.FakeScoreboard;
 import net.eofitg.hyfake.listener.ChatListener;
 import net.eofitg.hyfake.listener.ExperimentListener;
-import net.eofitg.hyfake.listener.GameOverlayAllListener;
 import net.eofitg.hyfake.listener.NameTagListener;
 import net.eofitg.hyfake.util.Reference;
 import net.minecraft.command.ICommand;
@@ -45,6 +45,9 @@ public class HyFake {
     public void init(FMLInitializationEvent e) {
         registerListeners(new ChatListener(), new NameTagListener(), new ExperimentListener());
         registerCommands(new HyFakeCommand(), new BedwarsCommand());
+
+        @SuppressWarnings("unused")  // was called via asm
+        FakeScoreboard fakeScoreboard = new FakeScoreboard();
     }
 
     private void registerListeners(Object... listeners) {
