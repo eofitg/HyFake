@@ -5,7 +5,6 @@
 I threw this together real quick to troll my friends with a fake screenshot ;)
 
 ## Features
-Replace fake info in
 
 - Chat
 - Name Tag
