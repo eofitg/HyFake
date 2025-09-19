@@ -1,0 +1,11 @@
+[
+{
+  "modid": "hyfake",
+  "name": "HyFake",
+  "description": "\"OMG It was All Faked!\"",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/eofitg/HyFake",
+  "authorList": ["eofitg"]
+}
+]
